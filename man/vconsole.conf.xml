@@ -87,10 +87,15 @@
         <term><varname>FONT_MAP=</varname></term>
         <term><varname>FONT_UNIMAP=</varname></term>
 
-        <listitem><para>Configures the console font, the console map
+        <listitem><para>Configures the console font, the console map,
         and the unicode font map.</para></listitem>
       </varlistentry>
 
+      <varlistentry>
+        <term><varname>FONT_DOUBLE=</varname></term>
+
+        <listitem><para>Toggles double size font.  This is a patched extension. :)</para></listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 
@@ -115,9 +120,10 @@
         <term><varname>vconsole.font=</varname></term>
         <term><varname>vconsole.font_map=</varname></term>
         <term><varname>vconsole.font_unimap=</varname></term>
+        <term><varname>vconsole.font_double==</varname></term>
 
-        <listitem><para>Overrides <varname>FONT=</varname>, <varname>FONT_MAP=</varname>, and
-        <varname>FONT_UNIMAP=</varname>.</para>
+        <listitem><para>Overrides <varname>FONT=</varname>, <varname>FONT_MAP=</varname>,
+        <varname>FONT_UNIMAP=</varname>, and <varname>FONT_DOUBLE=</varname>.</para>
 
         <xi:include href="version-info.xml" xpointer="v232"/></listitem>
       </varlistentry>
@@ -134,6 +140,15 @@
 
       <programlisting>KEYMAP=de-latin1
 FONT=eurlatgr</programlisting>
+    </example>
+
+    <example>
+      <title>Ethan's favorite font</title>
+
+      <para><filename>/etc/vconsole.conf</filename>:</para>
+
+      <programlisting>FONT=default8x9
+FONT_DOUBLE=1</programlisting>
     </example>
 
   </refsect1>

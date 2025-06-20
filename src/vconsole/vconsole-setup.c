@@ -45,6 +45,7 @@ typedef enum VCMeta {
         VC_FONT,
         VC_FONT_MAP,
         VC_FONT_UNIMAP,
+        VC_FONT_DOUBLE,
         _VC_META_MAX,
         _VC_META_INVALID = -EINVAL,
 } VCMeta;
@@ -59,6 +60,7 @@ static const char * const vc_meta_names[_VC_META_MAX] = {
         [VC_FONT]          = "vconsole.font",
         [VC_FONT_MAP]      = "vconsole.font_map",
         [VC_FONT_UNIMAP]   = "vconsole.font_unimap",
+        [VC_FONT_DOUBLE]   = "vconsole.font_double",
 };
 
 /* compatibility with obsolete multiple-dot scheme */
@@ -74,6 +76,7 @@ static const char * const vc_env_names[_VC_META_MAX] = {
         [VC_FONT]          = "FONT",
         [VC_FONT_MAP]      = "FONT_MAP",
         [VC_FONT_UNIMAP]   = "FONT_UNIMAP",
+        [VC_FONT_DOUBLE]   = "FONT_DOUBLE",
 };
 
 static void context_done(Context *c) {
@@ -119,7 +122,8 @@ static int context_read_creds(Context *c) {
                         vc_meta_names[VC_KEYMAP_TOGGLE], &v.config[VC_KEYMAP_TOGGLE],
                         vc_meta_names[VC_FONT],          &v.config[VC_FONT],
                         vc_meta_names[VC_FONT_MAP],      &v.config[VC_FONT_MAP],
-                        vc_meta_names[VC_FONT_UNIMAP],   &v.config[VC_FONT_UNIMAP]);
+                        vc_meta_names[VC_FONT_UNIMAP],   &v.config[VC_FONT_UNIMAP],
+                        vc_meta_names[VC_FONT_DOUBLE],   &v.config[VC_FONT_DOUBLE]);
         if (r < 0)
                 log_warning_errno(r, "Failed to import credentials, ignoring: %m");
 
@@ -139,7 +143,8 @@ static int context_read_env(Context *c) {
                         vc_env_names[VC_KEYMAP_TOGGLE], &v.config[VC_KEYMAP_TOGGLE],
                         vc_env_names[VC_FONT],          &v.config[VC_FONT],
                         vc_env_names[VC_FONT_MAP],      &v.config[VC_FONT_MAP],
-                        vc_env_names[VC_FONT_UNIMAP],   &v.config[VC_FONT_UNIMAP]);
+                        vc_env_names[VC_FONT_UNIMAP],   &v.config[VC_FONT_UNIMAP],
+                        vc_env_names[VC_FONT_DOUBLE],   &v.config[VC_FONT_DOUBLE]);
         if (r < 0) {
                 if (r != -ENOENT)
                         log_warning_errno(r, "Failed to read /etc/vconsole.conf, ignoring: %m");
@@ -165,7 +170,8 @@ static int context_read_proc_cmdline(Context *c) {
                         vc_meta_names[VC_FONT_UNIMAP],          &v.config[VC_FONT_UNIMAP],
                         vc_meta_compat_names[VC_KEYMAP_TOGGLE], &w.config[VC_KEYMAP_TOGGLE],
                         vc_meta_compat_names[VC_FONT_MAP],      &w.config[VC_FONT_MAP],
-                        vc_meta_compat_names[VC_FONT_UNIMAP],   &w.config[VC_FONT_UNIMAP]);
+                        vc_meta_compat_names[VC_FONT_UNIMAP],   &w.config[VC_FONT_UNIMAP],
+                        vc_meta_compat_names[VC_FONT_DOUBLE],   &w.config[VC_FONT_DOUBLE]);
         if (r < 0) {
                 if (r != -ENOENT)
                         log_warning_errno(r, "Failed to read /proc/cmdline, ignoring: %m");
@@ -331,7 +337,7 @@ static int keyboard_load_and_wait(const char *vc, Context *c, bool utf8) {
 }
 
 static int font_load_and_wait(const char *vc, Context *c) {
-        const char *font, *map, *unimap, *args[9];
+        const char *font, *map, *unimap, *doublesize, *args[10];
         unsigned i = 0;
         pid_t pid;
         int r;
@@ -342,6 +348,7 @@ static int font_load_and_wait(const char *vc, Context *c) {
         font = context_get_config(c, VC_FONT);
         map = context_get_config(c, VC_FONT_MAP);
         unimap = context_get_config(c, VC_FONT_UNIMAP);
+        doublesize = context_get_config(c, VC_FONT_DOUBLE);
 
         /* Any part can be set independently */
         if (!font && !map && !unimap)
@@ -358,6 +365,8 @@ static int font_load_and_wait(const char *vc, Context *c) {
                 args[i++] = "-u";
                 args[i++] = unimap;
         }
+        if (!isempty(doublesize) && strcmp("0", doublesize) && strcmp("no", doublesize))
+                args[i++] = "-d";
         if (font)
                 args[i++] = font;
         args[i++] = NULL;
