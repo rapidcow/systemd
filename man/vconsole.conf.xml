@@ -120,12 +120,19 @@
         <term><varname>vconsole.font=</varname></term>
         <term><varname>vconsole.font_map=</varname></term>
         <term><varname>vconsole.font_unimap=</varname></term>
-        <term><varname>vconsole.font_double==</varname></term>
 
-        <listitem><para>Overrides <varname>FONT=</varname>, <varname>FONT_MAP=</varname>,
-        <varname>FONT_UNIMAP=</varname>, and <varname>FONT_DOUBLE=</varname>.</para>
+        <listitem><para>Overrides <varname>FONT=</varname>, <varname>FONT_MAP=</varname>, and
+        <varname>FONT_UNIMAP=</varname>.</para>
 
         <xi:include href="version-info.xml" xpointer="v232"/></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><varname>vconsole.font_double=</varname></term>
+        <term><varname>vconsole.font.double=</varname></term>
+
+        <listitem><para>Overrides <varname>FONT_DOUBLE=</varname>.
+        This too is a patched extension.  A dotted version is also
+        accepted because I think that looks cool.</para></listitem>
       </varlistentry>
     </variablelist>
   </refsect1>
@@ -148,7 +155,7 @@ FONT=eurlatgr</programlisting>
       <para><filename>/etc/vconsole.conf</filename>:</para>
 
       <programlisting>FONT=default8x9
-FONT_DOUBLE=1</programlisting>
+FONT_DOUBLE=yes!</programlisting>
     </example>
 
   </refsect1>
