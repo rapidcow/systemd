@@ -22,7 +22,7 @@ if ((LLVM)) && [[ -n "$SANITIZERS" ]]; then
     MKOSI_LDFLAGS="$MKOSI_LDFLAGS -Wl,-rpath=$(realpath "$(clang --print-runtime-dir)")"
 fi
 
-MKOSI_MESON_OPTIONS="-D mode=developer -D vcs-tag=${VCS_TAG:-true} -D b_sanitize=${SANITIZERS:-none}"
+MKOSI_MESON_OPTIONS="-D mode=developer -D vcs-tag=${VCS_TAG:-true} -D b_sanitize=${SANITIZERS:-none} -Dtime-epoch=1744207869"
 if ((WIPE)) && [[ -d "$BUILDDIR/meson-private" ]]; then
     MKOSI_MESON_OPTIONS="$MKOSI_MESON_OPTIONS --wipe"
 fi
@@ -36,10 +36,10 @@ fi
 # instead. The rootfs is overlaid with a writable tmpfs during the build script so these changes don't end up
 # in the image itself.
 tee --append /etc/makepkg.conf >/dev/null <<EOF
-export CC="$( ((LLVM)) && echo clang || echo gcc)"
-export CXX="$( ((LLVM)) && echo clang++ || echo g++)"
-export CC_LD="$( ((LLVM)) && echo lld)"
-export CXX_LD="$( ((LLVM)) && echo lld)"
+export CC="$( ((CC)) && echo "$CC" || ((LLVM)) && echo clang || echo gcc)"
+export CXX="$( ((CXX)) && echo "$CXX" || ((LLVM)) && echo clang++ || echo g++)"
+export CC_LD="$( ((LD)) && echo "$LD" || ((LLVM)) && echo lld)"
+export CXX_LD="$( ((LD)) && echo "$LD" || ((LLVM)) && echo lld)"
 export CFLAGS="\$CFLAGS $MKOSI_CFLAGS $CFLAGS"
 export CXXFLAGS="\$CXXFLAGS $MKOSI_CFLAGS $CFLAGS"
 export LDFLAGS="\$LDFLAGS $MKOSI_LDFLAGS $LDFLAGS"

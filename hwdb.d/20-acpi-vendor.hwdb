@@ -228,6 +228,9 @@ acpi:ISIC*:
 acpi:JMIC*:
  ID_VENDOR_FROM_DATABASE=Shenzhen Jaguar Microsystems Co.,Ltd.
 
+acpi:JPMC*:
+ ID_VENDOR_FROM_DATABASE=JP Morgan Chase N.A.
+
 acpi:JSYS*:
  ID_VENDOR_FROM_DATABASE=Juniper Systems, Inc.
 
@@ -327,6 +330,9 @@ acpi:RKCP*:
 acpi:ROKL*:
  ID_VENDOR_FROM_DATABASE=Rockwell Automation, Inc
 
+acpi:ROKU*:
+ ID_VENDOR_FROM_DATABASE=Roku, Inc.
+
 acpi:RPIL*:
  ID_VENDOR_FROM_DATABASE=Raspberry Pi
 
@@ -389,6 +395,9 @@ acpi:UBLX*:
 
 acpi:UBOO*:
  ID_VENDOR_FROM_DATABASE=Das U-Boot
+
+acpi:ULRV*:
+ ID_VENDOR_FROM_DATABASE=UltraRISC Technology (Shanghai) Co., Ltd
 
 acpi:VAIO*:
  ID_VENDOR_FROM_DATABASE=VAIO Corporation

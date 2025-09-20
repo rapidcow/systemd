@@ -23,7 +23,8 @@ at_exit() {
 
 trap at_exit EXIT
 
-# To make all coredump entries stored in system.journal.
+# Sync and rotate journal to make all coredump entries stored in system.journal.
+journalctl --sync
 journalctl --rotate
 
 # Check that we're the ones to receive coredumps
@@ -109,6 +110,16 @@ EOF
     unset CONTAINER
 fi
 
+# Sync and rotate journals (again) to make coredumps stored in archived journal. Otherwise, the main active
+# journal file may be already mostly filled with the coredumps, and may trigger rotation during the sanity
+# checks below. If coredumpctl accesses the main journal currently rotationg, then it warns the following and
+# skips reading the main journal, and cannot find the recent coredumps:
+# TEST-87-AUX-UTILS-VM.sh[839]: + coredumpctl -n 1
+# TEST-87-AUX-UTILS-VM.sh[1172]: Journal file /var/log/journal/a8285330872602d1377cbaaf68869946/system.journal is truncated, ignoring file.
+# TEST-87-AUX-UTILS-VM.sh[1172]: No coredumps found.
+journalctl --sync
+journalctl --rotate
+
 coredumpctl
 SYSTEMD_LOG_LEVEL=debug coredumpctl
 coredumpctl --help
@@ -166,6 +177,10 @@ rm -fv /run/systemd/coredump.conf.d/99-external.conf
 # Wait a bit for the coredumps to get processed
 timeout 30 bash -c "while [[ \$(coredumpctl list -q --no-legend $CORE_TEST_UNPRIV_BIN | wc -l) -lt 4 ]]; do sleep 1; done"
 
+# Sync and rotate journal again to make the coredump stored in an archived journal.
+journalctl --sync
+journalctl --rotate
+
 # root should see coredumps from both binaries
 coredumpctl info "$CORE_TEST_UNPRIV_BIN"
 coredumpctl info "${CORE_TEST_UNPRIV_BIN##*/}"
@@ -201,7 +216,7 @@ journalctl -b -n 1 --output=export --output-fields=MESSAGE,COREDUMP COREDUMP_EXE
 journalctl -b -n 1 --output=export --output-fields=MESSAGE,COREDUMP COREDUMP_EXE="/usr/bin/test-dump" |
     /usr/lib/systemd/systemd-coredump --backtrace $$ 0 0 6 1679509902 12345 youmachine 1
 # Wait a bit for the coredumps to get processed
-timeout 30 bash -c "while [[ \$(coredumpctl list -q --no-legend $$ | wc -l) -lt 2 ]]; do sleep 1; done"
+timeout 30 bash -c "while [[ \$(coredumpctl list -q --no-legend $$ | wc -l) -lt 3 ]]; do sleep 1; done"
 coredumpctl info $$
 coredumpctl info COREDUMP_TIMESTAMP=1679509900000000
 coredumpctl info COREDUMP_TIMESTAMP=1679509901000000

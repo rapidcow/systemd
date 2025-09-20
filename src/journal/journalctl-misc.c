@@ -1,16 +1,23 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include "sd-journal.h"
+
+#include "alloc-util.h"
 #include "dirent-util.h"
 #include "fd-util.h"
 #include "format-table.h"
 #include "format-util.h"
+#include "hashmap.h"
 #include "journal-internal.h"
 #include "journal-verify.h"
 #include "journalctl.h"
 #include "journalctl-misc.h"
 #include "journalctl-util.h"
+#include "log.h"
 #include "logs-show.h"
+#include "strv.h"
 #include "syslog-util.h"
+#include "time-util.h"
 
 int action_print_header(void) {
         _cleanup_(sd_journal_closep) sd_journal *j = NULL;
@@ -146,7 +153,7 @@ static int show_log_ids(const LogId *ids, size_t n_ids, const char *name) {
 
         r = table_print_with_pager(table, arg_json_format_flags, arg_pager_flags, !arg_quiet);
         if (r < 0)
-                return table_log_print_error(r);
+                return r;
 
         return 0;
 }
@@ -246,11 +253,11 @@ int action_list_invocations(void) {
 
         assert(arg_action == ACTION_LIST_INVOCATIONS);
 
-        r = acquire_unit("--list-invocations", &unit, &type);
+        r = acquire_journal(&j);
         if (r < 0)
                 return r;
 
-        r = acquire_journal(&j);
+        r = acquire_unit(j, "--list-invocations", &unit, &type);
         if (r < 0)
                 return r;
 
